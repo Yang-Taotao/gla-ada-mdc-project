@@ -131,9 +131,9 @@ def linear_ml(data_x, data_y, fit_param):
     # Assign a, b value guesses, reference value from linear fit
     data_a, data_b = (
         # Value array of a guesses from linear fit
-        np.linspace(fit_param[0]-0.25, fit_param[0]+0.25, 100),
+        np.linspace(fit_param[0] - 0.25, fit_param[0] + 0.25, 100),
         # Value array of b guesses from linear fit
-        np.linspace(fit_param[1]-0.25, fit_param[1]+0.25, 100),
+        np.linspace(fit_param[1] - 0.25, fit_param[1] + 0.25, 100),
     )
 
     # Compute the log likelihood grid
