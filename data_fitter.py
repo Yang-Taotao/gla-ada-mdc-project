@@ -169,8 +169,8 @@ def linear_ml(data_x, data_y):
     # Get the minimum value of delta chi2
     min_delta_chi2 = np.argmin(grid_delta_chi2)
 
-    # Generate fit result tuple
-    result = (grid_delta_chi2, fit_param)
+    # Generate fit result tuple for plotting
+    result = (fit_param[0], fit_param[1], grid_delta_chi2)
 
     # Results printout
     print()
