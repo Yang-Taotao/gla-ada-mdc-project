@@ -78,8 +78,8 @@ def linear_ls(data_x, data_y):
         ),
     )
 
-    # Generate results tuple
-    result = (fit_param, fit_sigma, fit_var, fit_cov, fit_corr)
+    # Generate results, only fit parameters are of concerns
+    result = fit_param
 
     # Print results
     print()
