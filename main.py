@@ -11,7 +11,7 @@ Created on Mon Mar 13 2023
 from data_reader import file_loader
 
 # Custom data fitter module
-from data_fitter import linear_ls
+from data_fitter import linear_ls, linear_ml
 
 # %% Data loader for MDC1 and MDC2
 # Assign file path
@@ -24,3 +24,4 @@ data_x2, data_y2 = file_loader(file_2)  # MDC2 dataset
 linear_ls(data_x1, data_y1)
 
 # %% 1.2 - Get maximum likelihood fitting result for MDC1.txt
+linear_ml(data_x1, data_y1)

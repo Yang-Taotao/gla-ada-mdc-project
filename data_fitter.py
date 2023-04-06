@@ -1,5 +1,6 @@
 """
 This is the data fitter module file for MDC data reading.
+Results print out formatted with f-string methods.
 
 Created on Mon Mar 13 2023
 
@@ -8,8 +9,8 @@ Created on Mon Mar 13 2023
 # %% Library import
 import numpy as np
 
-# %% Least squares fitter
-# Ordinary least squares fitting function
+# %% Linear least squares fitter
+# Linear ordinary least squares fitter
 def linear_ls(data_x, data_y):
     """
     Parameters
@@ -86,13 +87,7 @@ def linear_ls(data_x, data_y):
     )
 
     # Generate results tuple
-    result = (
-        fit_param,
-        fit_sigma,
-        fit_var,
-        fit_cov,
-        fit_corr,
-    )
+    result = (fit_param, fit_sigma, fit_var, fit_cov, fit_corr)
 
     # Print results
     print()
@@ -114,4 +109,80 @@ def linear_ls(data_x, data_y):
 
 
 # %% Maximum likelihood fitter
-# Maximum likelihood linear model fitting
+# Linear maximum likelihood fitter
+def linear_ml(data_x, data_y):
+    """
+    Parameters
+    ----------
+    data_x : array
+        An array of x data
+    data_y : array
+        An array of y data
+
+    Returns
+    -------
+    result : tuple
+        A tuple of all fit results
+    """
+    # Linear log likelihood function generator
+    def linear_ll(param):
+        # Unpack linear model param
+        param_a, param_b = param
+        # Generate linear model y = a+b*x
+        fit_model = param_a + param_b * data_x
+        # Get stdev of residuals
+        fit_sigma = np.std(data_y - fit_model)
+        # Return callable linear log likelihood calculation result
+        return (
+            -0.5 * np.sum((data_y - fit_model)**2 / fit_sigma**2 + np.log(2*np.pi*fit_sigma**2))
+        )
+
+    # Assign a, b value guesses
+    a_val, b_val = (
+        # Value array of a
+        np.linspace(np.min(data_y), np.max(data_y), 100),
+        # Value array of b
+        np.linspace(-1, 1, 100),
+    )
+
+    # Compute the log likelihood grid
+    grid_ll = np.array(
+        [
+            linear_ll([a_val[i], b_val[j]]) 
+            for i in range(len(a_val)) 
+            for j in range(len(b_val))
+        ]
+    ).reshape(len(a_val), len(b_val))
+
+    # Compute the chi2 grid
+    grid_chi2 = -2 * grid_ll
+    
+    # Locate the minimum chi2 result
+    idx_min = np.unravel_index(np.argmin(grid_chi2), grid_chi2.shape)
+    # Index out the a, b pair at minimum chi2
+    fit_param = a_val[idx_min[0]], b_val[idx_min[1]]
+    # Get the minimum chi2 value
+    min_chi2 = grid_chi2[idx_min]
+    
+    # Compute the delta chi2 grid
+    grid_delta_chi2 = grid_chi2 - min_chi2
+    # Get the minimum value of delta chi2
+    min_delta_chi2 = np.argmin(grid_delta_chi2)
+
+    # Generate fit result tuple
+    result = (grid_delta_chi2, fit_param)
+
+    # Results printout
+    print()
+    print(f"{'Linear-ml fit result:':<30}")
+    print("=" * 30)
+    print(f"{'Fitted intercept:':<20}{fit_param[0]:>10.4g}")
+    print(f"{'Fitted slope:':<20}{fit_param[1]:>10.4g}")
+    print(f"{'Min of chi2:':<20}{min_chi2:>10.4g}")
+    print(f"{'Min of delta chi2:':<20}{min_delta_chi2:>10.4g}")
+    print("=" * 30)
+    print()
+
+    # Return function call result
+    return result
+
