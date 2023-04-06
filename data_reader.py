@@ -1,15 +1,17 @@
 """
-This is the module file for MDC data reading
+This is the data reader module file for MDC data reading.
 
 Created on Mon Mar 13 15:20:15 2023
 
 @author: Yang-Taotao
 """
+# %% Library import
 # Library import
 import numpy as np
 
+# %% Data reader function
 # Data reader
-def read_to_array(file_path):
+def file_loader(file_path):
     """
     Parameters
     ----------
