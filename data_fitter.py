@@ -102,7 +102,7 @@ def linear_ls(data_x, data_y):
 
 # %% Maximum likelihood fitter
 # Linear maximum likelihood fitter
-def linear_ml(data_x, data_y):
+def linear_ml(data_x, data_y, fit_param):
     """
     Parameters
     ----------
@@ -117,9 +117,7 @@ def linear_ml(data_x, data_y):
         A tuple of all fit results
     """
     # Linear log likelihood function generator
-    def linear_ll(param):
-        # Unpack linear model param
-        param_a, param_b = param
+    def linear_ll(param_a, param_b):
         # Generate linear model y = a+b*x
         fit_model = param_a + param_b * data_x
         # Get stdev of residuals
@@ -130,40 +128,43 @@ def linear_ml(data_x, data_y):
             + np.log(2 * np.pi * fit_sigma**2)
         )
 
-    # Assign a, b value guesses
-    a_val, b_val = (
-        # Value array of a
-        np.linspace(np.min(data_y), np.max(data_y), 100),
-        # Value array of b
-        np.linspace(-1, 1, 100),
+    # Assign a, b value guesses, reference value from linear fit
+    data_a, data_b = (
+        # Value array of a guesses from linear fit
+        np.linspace(fit_param[0]-0.25, fit_param[0]+0.25, 100),
+        # Value array of b guesses from linear fit
+        np.linspace(fit_param[1]-0.25, fit_param[1]+0.25, 100),
     )
 
     # Compute the log likelihood grid
     grid_ll = np.array(
+        # Loop with list comprehension
         [
-            linear_ll([a_val[i], b_val[j]])
-            for i in range(len(a_val))
-            for j in range(len(b_val))
+            # Cache log likelihood value of a, b pair
+            linear_ll(data_a[i], data_b[j])
+            # Loop through entries of a
+            for i in range(len(data_a))
+            # Loop through entries of b
+            for j in range(len(data_b))
         ]
-    ).reshape(len(a_val), len(b_val))
+        # Reshape 1-D array into 2-D array with a, b dimensions
+    ).reshape(len(data_a), len(data_b))
 
-    # Compute the chi2 grid
-    grid_chi2 = -2 * grid_ll
+    # Compute the chi2 grid from log likelihood grid
+    grid_chi2 = (-2) * grid_ll
 
-    # Locate the minimum chi2 result
+    # Locate the minimum chi2 result index
     idx_min = np.unravel_index(np.argmin(grid_chi2), grid_chi2.shape)
     # Index out the a, b pair at minimum chi2
-    fit_param = a_val[idx_min[0]], b_val[idx_min[1]]
+    fit_param = data_a[idx_min[0]], data_b[idx_min[1]]
     # Get the minimum chi2 value
     min_chi2 = grid_chi2[idx_min]
 
-    # Compute the delta chi2 grid
+    # Compute the delta chi2 grid into baysian percentage
     grid_delta_chi2 = grid_chi2 - min_chi2
-    # Get the minimum value of delta chi2
-    min_delta_chi2 = np.argmin(grid_delta_chi2)
 
     # Generate fit result tuple for plotting
-    result = (a_val, b_val, grid_delta_chi2)
+    result = (data_a, data_b, grid_delta_chi2)
 
     # Results printout
     print()
@@ -172,7 +173,6 @@ def linear_ml(data_x, data_y):
     print(f"{'Fitted intercept:':<20}{fit_param[0]:>10.4g}")
     print(f"{'Fitted slope:':<20}{fit_param[1]:>10.4g}")
     print(f"{'Min of chi2:':<20}{min_chi2:>10.4g}")
-    print(f"{'Min of delta chi2:':<20}{min_delta_chi2:>10.4g}")
     print("=" * 30)
     print()
 

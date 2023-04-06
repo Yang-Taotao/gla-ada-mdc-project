@@ -24,8 +24,11 @@ data_x1, data_y1 = file_loader(file_1)  # MDC1 dataset
 data_x2, data_y2 = file_loader(file_2)  # MDC2 dataset
 
 # %% 1.1 - Get ordinary linear least squares fit result print out for MDC1.txt
-linear_ls(data_x1, data_y1)
+res_linear_ls = linear_ls(data_x1, data_y1)
 
 # %% 1.2 - Get maximum likelihood fitting result for MDC1.txt
-res_12 = linear_ml(data_x1, data_y1)
-baysian_plotter(res_12)
+# Deposit linear ls fit param for ml initial guesses
+res_param_ls = res_linear_ls[0]
+res_linear_ml = linear_ml(data_x1, data_y1, res_param_ls)
+# Generate ml baysian credible region plot
+baysian_plotter(res_linear_ml)
