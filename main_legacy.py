@@ -88,7 +88,3 @@ plt.plot(
 )
 plt.title("Ordinary linear least squares fit result for MDC1")
 plt.xlabel("MDC1 data $x$"), plt.ylabel("MDC1 data $y$"), plt.legend()
-
-# ========================================== #
-
-# MDC1.2

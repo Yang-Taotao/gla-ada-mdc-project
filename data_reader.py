@@ -16,16 +16,18 @@ def file_loader(file_path):
     Parameters
     ----------
     file_path : string
-        Path to data file
+        Path to data file.
 
     Returns
     ----------
-    data_x : numpy array
-        An array of x data
-    data_y : numpy array
-        An array of y data
+    data_x : array
+        An array of x data.
+    data_y : array
+        An array of y data.
     """
+    # Read file to numpy array
     data = np.loadtxt(file_path)
-    data_x = data[:, 0]
-    data_y = data[:, 1]
+    # Unpack loaded data to x, y separate arrays
+    data_x, data_y = data[:, 0], data[:, 1]
+    # Return function call
     return data_x, data_y

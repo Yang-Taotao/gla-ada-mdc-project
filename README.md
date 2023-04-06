@@ -25,7 +25,10 @@ Data reader modules:
 - data_reader.py             
 
 Data fitter modules:
-- data_fitter.py            
+- data_fitter.py   
+
+Legacy maaster file:
+- main_legacy.py
 
 ## Supplementary files
 Readme:
@@ -33,4 +36,7 @@ Readme:
 
 ## Folder structure
 Data folder:
-- data
+- ./data/
+
+Plot folder:
+- ./media/
