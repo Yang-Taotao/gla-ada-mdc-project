@@ -21,14 +21,14 @@ def baysian_plotter(arg):
 
     # Get sigma levels from lecture slide 6
     levels = [2.30, 6.17, 11.8]
- 
+
     # Plot generation
     fig, ax = plt.subplots()
     CS = ax.contour(data_b, data_a, delta_grid, levels=levels)
     ax.clabel(CS, inline=1, fontsize=10)
-    ax.set_xlabel('Value of parameter $b$')
-    ax.set_ylabel('Value of parameter $a$')
-    
+    ax.set_xlabel("Value of parameter $b$")
+    ax.set_ylabel("Value of parameter $a$")
+
     # Save and close
     fig.savefig("./media/fig_1_baysian.png")
     plt.show()

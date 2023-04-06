@@ -37,17 +37,11 @@ def linear_ls(data_x, data_y):
     # Intermidiate calculation of denominators, results packed into tuple
     denom_res = (
         # Denominator for least squares
-        (
-            sum_res[0] * sum_res[3] - (sum_res[1]) ** 2
-        ),
+        (sum_res[0] * sum_res[3] - (sum_res[1]) ** 2),
         # Denominator for corr of x
-        np.sqrt(
-            sum_res[0] * sum_res[3] - (sum_res[1]) ** 2
-        ),
+        np.sqrt(sum_res[0] * sum_res[3] - (sum_res[1]) ** 2),
         # Denominator for corr of y
-        np.sqrt(
-            sum_res[0] * sum_res[4] - (sum_res[2]) ** 2
-        ),
+        np.sqrt(sum_res[0] * sum_res[4] - (sum_res[2]) ** 2),
     )
 
     # Generate least squares fitting parameters a,b of linear model
@@ -76,9 +70,7 @@ def linear_ls(data_x, data_y):
     # Calculate covariance of linear fit
     fit_cov, fit_corr = (
         # Cov of fit param a, b
-        (
-            (-(sigma**2) * sum_res[1]) / denom_res[0]
-        ),
+        ((-(sigma**2) * sum_res[1]) / denom_res[0]),
         # Corr of dataset
         (
             (sum_res[0] * sum_res[5] - sum_res[1] * sum_res[2])
@@ -133,8 +125,9 @@ def linear_ml(data_x, data_y):
         # Get stdev of residuals
         fit_sigma = np.std(data_y - fit_model)
         # Return callable linear log likelihood calculation result
-        return (
-            -0.5 * np.sum((data_y - fit_model)**2 / fit_sigma**2 + np.log(2*np.pi*fit_sigma**2))
+        return -0.5 * np.sum(
+            (data_y - fit_model) ** 2 / fit_sigma**2
+            + np.log(2 * np.pi * fit_sigma**2)
         )
 
     # Assign a, b value guesses
@@ -148,22 +141,22 @@ def linear_ml(data_x, data_y):
     # Compute the log likelihood grid
     grid_ll = np.array(
         [
-            linear_ll([a_val[i], b_val[j]]) 
-            for i in range(len(a_val)) 
+            linear_ll([a_val[i], b_val[j]])
+            for i in range(len(a_val))
             for j in range(len(b_val))
         ]
     ).reshape(len(a_val), len(b_val))
 
     # Compute the chi2 grid
     grid_chi2 = -2 * grid_ll
-    
+
     # Locate the minimum chi2 result
     idx_min = np.unravel_index(np.argmin(grid_chi2), grid_chi2.shape)
     # Index out the a, b pair at minimum chi2
     fit_param = a_val[idx_min[0]], b_val[idx_min[1]]
     # Get the minimum chi2 value
     min_chi2 = grid_chi2[idx_min]
-    
+
     # Compute the delta chi2 grid
     grid_delta_chi2 = grid_chi2 - min_chi2
     # Get the minimum value of delta chi2
@@ -185,4 +178,3 @@ def linear_ml(data_x, data_y):
 
     # Return function call result
     return result
-
