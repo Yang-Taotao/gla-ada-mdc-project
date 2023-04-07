@@ -8,6 +8,8 @@ Created on Mon Mar 13 2023
 """
 # %% Library import
 import numpy as np
+import matplotlib.pyplot as plt
+import corner
 
 # %% Linear least squares fitter
 # Linear ordinary least squares fitter
@@ -16,14 +18,14 @@ def linear_ls(data_x, data_y):
     Parameters
     ----------
     data_x : array
-        An array of x data
+        An array of x data.
     data_y : array
-        An array of y data
+        An array of y data.
 
     Returns
     -------
     result : tuple
-        A tuple of all fit results
+        A tuple of all fit results.
     """
     # Intermidiate summation calculation, results packed into tuple
     sum_res = (
@@ -100,6 +102,33 @@ def linear_ls(data_x, data_y):
     return result
 
 
+# %% Log likelihood function repo
+# Linear log likelihood function generator
+def linear_ll(data_x, data_y, param_a, param_b):
+    """
+    Parameters
+    ----------
+    param_a : float
+        Linear fit model parameter, intercept.
+    param_b : float
+        Linear fit model parameter, slope.
+
+    Returns
+    -------
+    log likelihood function
+        Callable log likelihood calculation.
+    """
+    # Generate linear model y = a+b*x
+    fit_model = param_a + param_b * data_x
+    # Get stdev of residuals
+    fit_sigma = np.std(data_y - fit_model)
+    # Return callable linear log likelihood calculation result
+    return -0.5 * np.sum(
+        (data_y - fit_model) ** 2 / fit_sigma**2
+        + np.log(2 * np.pi * fit_sigma**2)
+    )
+
+
 # %% Maximum likelihood fitter
 # Linear maximum likelihood fitter
 def linear_ml(data_x, data_y, fit_param):
@@ -116,18 +145,6 @@ def linear_ml(data_x, data_y, fit_param):
     result : tuple
         A tuple of all fit results
     """
-    # Linear log likelihood function generator
-    def linear_ll(param_a, param_b):
-        # Generate linear model y = a+b*x
-        fit_model = param_a + param_b * data_x
-        # Get stdev of residuals
-        fit_sigma = np.std(data_y - fit_model)
-        # Return callable linear log likelihood calculation result
-        return -0.5 * np.sum(
-            (data_y - fit_model) ** 2 / fit_sigma**2
-            + np.log(2 * np.pi * fit_sigma**2)
-        )
-
     # Assign a, b value guesses, reference value from linear fit
     data_a, data_b = (
         # Value array of a guesses from linear fit
@@ -141,7 +158,7 @@ def linear_ml(data_x, data_y, fit_param):
         # Loop with list comprehension
         [
             # Cache log likelihood value of a, b pair
-            linear_ll(data_a[i], data_b[j])
+            linear_ll(data_x, data_y, data_a[i], data_b[j])
             # Loop through entries of a
             for i in range(len(data_a))
             # Loop through entries of b
@@ -150,10 +167,10 @@ def linear_ml(data_x, data_y, fit_param):
         # Reshape 1-D array into 2-D array with a, b dimensions
     ).reshape(len(data_a), len(data_b))
 
-    # Compute the chi2 grid from log likelihood grid
+    # Compute the chi2 grid from log likelihood grid, chi2 = -2*ll
     grid_chi2 = (-2) * grid_ll
 
-    # Locate the minimum chi2 result index
+    # Locate the minimum chi2 result index with np.unravel
     idx_min = np.unravel_index(np.argmin(grid_chi2), grid_chi2.shape)
     # Index out the a, b pair at minimum chi2
     fit_param = data_a[idx_min[0]], data_b[idx_min[1]]
@@ -178,3 +195,62 @@ def linear_ml(data_x, data_y, fit_param):
 
     # Return function call result
     return result
+
+
+# %% Metropolis - MCMC
+# Linear MCMC function
+def linear_mcmc(data_x, data_y):
+    # Local variable repo
+    data_step, fit_init, fit_step = ( 
+        100000,
+        0.0,
+        0.1,
+    )
+
+    # Generate empty chains
+    mcmc_a, mcmc_b, mcmc_ll = (
+        [fit_init],
+        [fit_init],
+        [linear_ll(data_x, data_y, fit_init, fit_init)],
+    )
+
+    # MCMC
+    for i in range(data_step):
+        # Generate a new proposal for (a, b) using a Gaussian distribution
+        temp_a = np.random.normal(mcmc_a[-1], fit_step)
+        temp_b = np.random.normal(mcmc_b[-1], fit_step)
+
+        # Calculate the log-likelihood of the proposed parameters
+        temp_ll = linear_ll(temp_a, temp_b, data_x, data_y)
+
+        # Calculate the acceptance ratio
+        fit_ratio = temp_ll / mcmc_ll[-1]
+
+        # Accept or reject the proposal
+        if fit_ratio > np.random.rand():
+            mcmc_a.append(temp_a)
+            mcmc_b.append(temp_b)
+            mcmc_ll.append(temp_ll)
+        else:
+            mcmc_a.append(mcmc_a[-1])
+            mcmc_b.append(mcmc_b[-1])
+            mcmc_ll.append(mcmc_ll[-1])
+
+    # Discard the burn-in period (first half of the chain)
+    mcmc_a = mcmc_a[data_step//2:]
+    mcmc_b = mcmc_b[data_step//2:]
+
+    # Compute the mean and standard deviation of the parameters
+    a_mean = np.mean(mcmc_a)
+    b_mean = np.mean(mcmc_b)
+    a_std = np.std(mcmc_a)
+    b_std = np.std(mcmc_b)
+
+    # Plot the corner plot
+    samples = np.vstack((mcmc_a, mcmc_b)).T
+    labels = ['a', 'b']
+    truths = [None, None]
+    fig = corner.corner(samples, labels=labels, truths=truths)
+    plt.show()
+
+    return fig, a_mean, b_mean, a_std, b_std    

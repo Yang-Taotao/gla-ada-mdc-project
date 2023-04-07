@@ -11,7 +11,7 @@ Created on Mon Mar 13 2023
 from data_reader import file_loader
 
 # Custom data fitter module
-from data_fitter import linear_ls, linear_ml
+from data_fitter import linear_ls, linear_ml, linear_mcmc
 
 # Custom data plotter module
 from data_plotter import baysian_plotter
@@ -31,3 +31,6 @@ res_linear_ls = linear_ls(data_x1, data_y1)
 res_linear_ml = linear_ml(data_x1, data_y1, res_linear_ls)
 # Generate ml baysian credible region plot
 baysian_plotter(res_linear_ml)
+
+# %% 1.3 - MCMC linear fit with corner plot
+linear_mcmc(data_x1, data_y1)
