@@ -203,7 +203,7 @@ def linear_mcmc(data_x, data_y):
     # Local variable repo
     data_step, fit_init, fit_step = ( 
         100000,
-        0.0,
+        1.0,
         0.1,
     )
 
