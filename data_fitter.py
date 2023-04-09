@@ -79,7 +79,7 @@ def linear_ls(data_x, data_y):
     )
 
     # Generate results, only fit parameters are of concerns
-    result = fit_param
+    result = fit_param, fit_sigma
 
     # Print results
     print()
@@ -122,7 +122,7 @@ def linear_ll(data_x, data_y, param_a, param_b):
     fit_sigma = np.std(data_y - fit_model)
     # Return callable linear log likelihood calculation result
     return -0.5 * np.sum(
-        (data_y - fit_model) ** 2 / fit_sigma**2
+        ((data_y - fit_model) ** 2) / (2 * fit_sigma**2)
         + np.log(2 * np.pi * fit_sigma**2)
     )
 
@@ -197,39 +197,54 @@ def linear_ml(data_x, data_y, fit_param):
 
 # %% Metropolis - MCMC
 # Linear MCMC function
-def linear_mcmc(data_x, data_y):
-    # Local variable repo
+def linear_mcmc(data_x, data_y, fit_ref):
+    # Local variable repo, define total iterations and init counter
     data_step, data_accept = 100000, 0
 
     # Generate empty chains
     data_a, data_b, data_ll, data_mcmc = (
+        # Empty a value chain, all values are zero
         np.zeros(data_step),
+        # Empty b value chain, all values are zero
         np.zeros(data_step),
+        # Empty log likelihood chain, all values are zero
         np.zeros(data_step),
+        # Empty mcmc sample chain, 2 columns, all values are zero
         np.zeros((data_step, 2)),
     )
 
     # Initialize chains with initial values
-    data_a[0], data_b[0] = 1.0, 1.0
-    fit_a_coeff, fit_b_coeff = 0.1, 0.1
-    data_ll[0] = linear_ll(data_x, data_y, data_a[0], data_b[0])
-    data_mcmc[0] = data_a[0], data_b[0]
+    data_a[0], data_b[0], fit_a_sigma, fit_b_sigma = (
+        # First a value guess from ls fitting results
+        fit_ref[0][0], 
+        # First b value guess from ls fitting results
+        fit_ref[0][1],
+        # Sigma of a guesses
+        fit_ref[1][0],
+        # Sigma of b guesses
+        fit_ref[1][1],
+    )
+    
+    data_ll[0], data_mcmc[0] = (
+        linear_ll(data_x, data_y, data_a[0], data_b[0]),
+        (data_a[0], data_b[0]),
+    )
 
-    # MCMC 
+    # MCMC loop
     for i in range(1, data_step):
         # Get temp a, b value
         temp_a, temp_b = (
-            data_a[i-1] + fit_a_coeff * np.random.randn(1),
-            data_b[i-1] + fit_b_coeff * np.random.randn(1),
+            data_a[i-1] + fit_a_sigma * np.random.randn(1),
+            data_b[i-1] + fit_b_sigma * np.random.randn(1),
         )
         # Get temp ll from temp a, b
         temp_ll = linear_ll(data_x, data_y, temp_a, temp_b)
 
         # Generate ratio from ll
-        mcmc_ratio = temp_ll / data_ll[i-1]
+        mcmc_ratio = np.exp(temp_ll - data_ll[i-1])
 
         # Ratio analysis
-        if mcmc_ratio >= np.random.rand(1):
+        if mcmc_ratio > np.random.rand(1) or mcmc_ratio >= 1:
             # Update state
             data_a[i], data_b[i], data_ll[i] = temp_a, temp_b, temp_ll
             # Update counter
@@ -246,8 +261,8 @@ def linear_mcmc(data_x, data_y):
 
     # Dataset construction
     fit_mean, fit_std, fit_cov = (
-        [np.mean(data_a), np.mean(data_b)],
-        [np.std(data_a), np.std(data_b)],
+        (np.mean(data_a), np.mean(data_b)),
+        (np.std(data_a), np.std(data_b)),
         np.cov(data_a, data_b)[0,1],
     )
 
@@ -255,6 +270,7 @@ def linear_mcmc(data_x, data_y):
     print()
     print(f"{'Linear-MCMC result:':<30}")
     print("=" * 30)
+    print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
     print(f"{'Acceptance rate:':<20}{data_ratio:>10.4g}")
     print(f"{'Mean intercept:':<20}{fit_mean[0]:>10.4g}")
     print(f"{'Mean slope:':<20}{fit_mean[1]:>10.4g}")

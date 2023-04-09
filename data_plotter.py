@@ -7,6 +7,7 @@ Created on Thu Apr 06 2023
 @author: Yang-Taotao
 """
 # %% Library import
+import numpy as np
 import matplotlib.pyplot as plt
 import corner
 import scienceplots
@@ -62,10 +63,30 @@ def baysian_plotter(arg):
 def linear_mcmc_plotter(data_mcmc):
 
     # Plot param repo
-    labels = ["$a$", "$b$"]
+    label, quantile = (
+        # Set a, b axis label, render LaTeX
+        [r"Value of $a$", r"Value of $b$"],
+        # Set 65% quantiles
+        [0.16, 0.84],
+    )
 
     # Plot the corner plot
-    corner.corner(data_mcmc, labels=labels, show_titles=True)
+    corner.corner(
+        data_mcmc,
+        labels=label,
+        quantiles=quantile, 
+        max_n_ticks=5,
+        show_titles=True,
+        title_fmt=".4g",
+        label_kwargs={"fontsize": 14},
+        title_kwargs={"fontsize": 10},
+        plot_density=True,
+        plot_datapoints=True,
+    )
+
+    # Plot customization, add ticks
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
 
     # Save and close
     plt.savefig("./media/fig_2_mcmc.png")
