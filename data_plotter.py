@@ -8,6 +8,7 @@ Created on Thu Apr 06 2023
 """
 # %% Library import
 import matplotlib.pyplot as plt
+import corner
 import scienceplots
 
 # %%  Plot style config
@@ -54,4 +55,18 @@ def baysian_plotter(arg):
 
     # Save and close
     plt.savefig("./media/fig_1_baysian.png")
+    plt.close()
+
+
+# %% Corner plotter for linear MCMC
+def linear_mcmc_plotter(data_mcmc):
+
+    # Plot param repo
+    labels = ["$a$", "$b$"]
+
+    # Plot the corner plot
+    corner.corner(data_mcmc, labels=labels, show_titles=True)
+
+    # Save and close
+    plt.savefig("./media/fig_2_mcmc.png")
     plt.close()

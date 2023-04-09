@@ -31,12 +31,12 @@ chisq = np.zeros(nmcmc)
 accept = 0
 
 a[0] = 1.0
-samples[0,0] = 1.33
+samples[0,0] = 1.0
 sig_a = 0.1
 
 b[0] = 1.0
-samples[0,1] = 3.22
-sig_b = 0.05
+samples[0,1] = 1.0
+sig_b = 0.1
 
 ## Generate chi2 array from all a, b pairs
 for k in range(0,len(x)):
@@ -113,6 +113,7 @@ accept_ratio = accept/nmcmc
 ## Do corner plot
 figure = corner.corner(samples)
 plt.show()
+plt.savefig("./media/fig_2-mcmc_original.png")
 
 ## Caculate mean and stdev of all a, b guesses
 bar = [np.mean(a), np.mean(b)]

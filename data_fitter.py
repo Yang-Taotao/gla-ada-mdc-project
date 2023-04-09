@@ -8,8 +8,6 @@ Created on Mon Mar 13 2023
 """
 # %% Library import
 import numpy as np
-import matplotlib.pyplot as plt
-import corner
 
 # %% Linear least squares fitter
 # Linear ordinary least squares fitter
@@ -201,56 +199,70 @@ def linear_ml(data_x, data_y, fit_param):
 # Linear MCMC function
 def linear_mcmc(data_x, data_y):
     # Local variable repo
-    data_step, fit_init, fit_step = ( 
-        100000,
-        1.0,
-        0.1,
-    )
+    data_step, data_accept = 100000, 0
 
     # Generate empty chains
-    mcmc_a, mcmc_b, mcmc_ll = (
-        [fit_init],
-        [fit_init],
-        [linear_ll(data_x, data_y, fit_init, fit_init)],
+    data_a, data_b, data_ll, data_mcmc = (
+        np.zeros(data_step),
+        np.zeros(data_step),
+        np.zeros(data_step),
+        np.zeros((data_step, 2)),
     )
 
-    # MCMC
-    for i in range(data_step):
-        # Generate a new proposal for (a, b) using a Gaussian distribution
-        temp_a = np.random.normal(mcmc_a[-1], fit_step)
-        temp_b = np.random.normal(mcmc_b[-1], fit_step)
+    # Initialize chains with initial values
+    data_a[0], data_b[0] = 1.0, 1.0
+    fit_a_coeff, fit_b_coeff = 0.1, 0.1
+    data_ll[0] = linear_ll(data_x, data_y, data_a[0], data_b[0])
+    data_mcmc[0] = data_a[0], data_b[0]
 
-        # Calculate the log-likelihood of the proposed parameters
-        temp_ll = linear_ll(temp_a, temp_b, data_x, data_y)
+    # MCMC 
+    for i in range(1, data_step):
+        # Get temp a, b value
+        temp_a, temp_b = (
+            data_a[i-1] + fit_a_coeff * np.random.randn(1),
+            data_b[i-1] + fit_b_coeff * np.random.randn(1),
+        )
+        # Get temp ll from temp a, b
+        temp_ll = linear_ll(data_x, data_y, temp_a, temp_b)
 
-        # Calculate the acceptance ratio
-        fit_ratio = temp_ll / mcmc_ll[-1]
+        # Generate ratio from ll
+        mcmc_ratio = temp_ll / data_ll[i-1]
 
-        # Accept or reject the proposal
-        if fit_ratio > np.random.rand():
-            mcmc_a.append(temp_a)
-            mcmc_b.append(temp_b)
-            mcmc_ll.append(temp_ll)
+        # Ratio analysis
+        if mcmc_ratio >= np.random.rand(1):
+            # Update state
+            data_a[i], data_b[i], data_ll[i] = temp_a, temp_b, temp_ll
+            # Update counter
+            data_accept += 1
         else:
-            mcmc_a.append(mcmc_a[-1])
-            mcmc_b.append(mcmc_b[-1])
-            mcmc_ll.append(mcmc_ll[-1])
+            # Update state
+            data_a[i], data_b[i], data_ll[i] = data_a[i-1], data_b[i-1], data_ll[i-1]
+        
+        # Fill dataset
+        data_mcmc[i] = data_a[i], data_b[i]
+        
+    # Overall acceptance rate
+    data_ratio = data_accept / data_step
 
-    # Discard the burn-in period (first half of the chain)
-    mcmc_a = mcmc_a[data_step//2:]
-    mcmc_b = mcmc_b[data_step//2:]
+    # Dataset construction
+    fit_mean, fit_std, fit_cov = (
+        [np.mean(data_a), np.mean(data_b)],
+        [np.std(data_a), np.std(data_b)],
+        np.cov(data_a, data_b)[0,1],
+    )
 
-    # Compute the mean and standard deviation of the parameters
-    a_mean = np.mean(mcmc_a)
-    b_mean = np.mean(mcmc_b)
-    a_std = np.std(mcmc_a)
-    b_std = np.std(mcmc_b)
+    # Results printout
+    print()
+    print(f"{'Linear-MCMC result:':<30}")
+    print("=" * 30)
+    print(f"{'Acceptance rate:':<20}{data_ratio:>10.4g}")
+    print(f"{'Mean intercept:':<20}{fit_mean[0]:>10.4g}")
+    print(f"{'Mean slope:':<20}{fit_mean[1]:>10.4g}")
+    print(f"{'Std intercept:':<20}{fit_std[0]:>10.4g}")
+    print(f"{'Std slope:':<20}{fit_std[1]:>10.4g}")
+    print(f"{'Covariance:':<20}{fit_cov:>10.4g}")
+    print("=" * 30)
+    print()
 
-    # Plot the corner plot
-    samples = np.vstack((mcmc_a, mcmc_b)).T
-    labels = ['a', 'b']
-    truths = [None, None]
-    fig = corner.corner(samples, labels=labels, truths=truths)
-    plt.show()
-
-    return fig, a_mean, b_mean, a_std, b_std    
+    # Return results for plotter
+    return data_mcmc
