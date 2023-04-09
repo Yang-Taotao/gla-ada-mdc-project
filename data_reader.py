@@ -6,7 +6,7 @@ Created on Mon Mar 13 15:20:15 2023
 @author: Yang-Taotao
 """
 # %% Library import
-# Library import
+# Import numpy with np alias for array manupulations
 import numpy as np
 
 # %% Data reader function
@@ -25,9 +25,9 @@ def file_loader(file_path):
     data_y : array
         An array of y data.
     """
-    # Read file to numpy array
+    # Read txt file to numpy array with np.loadtext()
     data = np.loadtxt(file_path)
-    # Unpack loaded data to x, y separate arrays
-    data_x, data_y = data[:, 0], data[:, 1]
+    # Unpack loaded data to x, y arrays and pack it back into result output
+    result = (data[:, 0], data[:, 1])
     # Return function call
-    return data_x, data_y
+    return result
