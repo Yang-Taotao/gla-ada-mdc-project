@@ -21,7 +21,7 @@ from data_fitter import linear_ls, linear_ml, mcmc_fitter
 # Custom data plotter module
 # Module baysian_plotter generates the plot for 1.2
 # Module linear_mcmc_plotter generates the plot for 1.3
-from data_plotter import baysian_plotter, linear_mcmc_plotter
+from data_plotter import baysian_plotter, mcmc_plotter
 
 # %% Data loader for MDC1 and MDC2
 # Assign file path as file_path
@@ -43,6 +43,12 @@ baysian_plotter(res_linear_ml)
 
 # %% 1.3 - MCMC linear fit with corner plot
 # Deposit mcmc data with linear ls fit result as intial guesses
-res_linear_mcmc = mcmc_fitter(data_x1, data_y1, res_linear_ls)
+res_linear_mcmc = mcmc_fitter(data_x1, data_y1, "Linear")
 # Generate mcmc corner plot
-linear_mcmc_plotter(res_linear_mcmc)
+mcmc_plotter(res_linear_mcmc, "Linear")
+
+# %% 1.3 - MCMC linear fit with corner plot
+# Deposit mcmc data with linear ls fit result as intial guesses
+res_quadratic_mcmc = mcmc_fitter(data_x2, data_y2, "Quadratic")
+# Generate mcmc corner plot
+mcmc_plotter(res_quadratic_mcmc, "Quadratic")

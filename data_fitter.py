@@ -215,7 +215,7 @@ def linear_ml(data_x, data_y, fit_param):
 
 # %% Metropolis - MCMC
 # Linear MCMC function
-def mcmc_fitter(data_x, data_y, fit_ref):
+def mcmc_fitter(data_x, data_y, model="Linear"):
     """
     Parameters
     ----------
@@ -225,6 +225,8 @@ def mcmc_fitter(data_x, data_y, fit_ref):
         Data array of y.
     fit_ref : tuple
         Fit reference tuple from ls fitter.
+    model : string
+        Model selector, default at "Linear".
 
     Returns
     -------
@@ -234,44 +236,57 @@ def mcmc_fitter(data_x, data_y, fit_ref):
     # Local variable repo, define total iterations and init counter
     data_step, data_accept = 100000, 0
 
-    # Generate empty chains
-    data_a, data_b, data_ll, data_mcmc = (
-        # Empty a value chain, all values are zero
-        np.zeros(data_step),
-        # Empty b value chain, all values are zero
-        np.zeros(data_step),
-        # Empty log likelihood chain, all values are zero
-        np.zeros(data_step),
-        # Empty mcmc sample chain, 2 columns, all values are zero
-        np.zeros((data_step, 2)),
-    )
+    # Model selection
+    # Select linear model
+    if model == "Linear":
+        # Generate empty mcmc sample, 2 columns, all values are zero    
+        data_mcmc = np.zeros((data_step, 2))
+        # Initialize chains with initial values
+        data_mcmc[0], fit_sigma = (
+            # First a, b value guess from ls fitting results
+            [8.3, 2.6],
+            # Sigma of a, b guesses import from ls fit results
+            [0.01, 0.01],
+        )
+    # Select quadratic model
+    elif model == "Quadratic":
+        # Generate empty mcmc sample, 3 columns, all values are zero
+        data_mcmc = np.zeros((data_step, 3))
+        # Initialize chains with initial values
+        data_mcmc[0], fit_sigma = (
+            # First a, b value guess from ls fitting results
+            [8.47, 2.55, 0.30],
+            # Sigma of a, b guesses import from ls fit results
+            [0.01, 0.01, 0.01],
+        )
 
-    # Initialize chains with initial values
-    data_a[0], data_b[0], fit_sigma = (
-        # First a value guess from ls fitting results
-        fit_ref[0][0],
-        # First b value guess from ls fitting results
-        fit_ref[0][1],
-        # Sigma of a, b guesses import from ls fit results
-        (fit_ref[1][0], fit_ref[1][1]),
-    )
+    # Generate empty log likelihood chains
+    data_ll = np.zeros(data_step)
     # Initialize log likelihood and deposit results and a, b pairs
-    data_ll[0], data_mcmc[0] = (
-        # Calculate initial log likelihood from initial a, b entries
-        log_ll(data_x, data_y, (data_a[0], data_b[0]), "Linear"),
-        # Deposit initial a, b pair to mcmc chain
-        (data_a[0], data_b[0]),
-    )
+    data_ll[0] = log_ll(data_x, data_y, data_mcmc[0], model)
 
     # MCMC loop
     for i in range(1, data_step):
-        # Get temp a, b value by shifting randomly from base a, b values
-        temp = (
-            data_a[i - 1] + fit_sigma[0] * np.random.randn(1),
-            data_b[i - 1] + fit_sigma[1] * np.random.randn(1),
-        )
-        # Get temp log likelihood from temp a, b
-        temp_ll = log_ll(data_x, data_y, (temp[0], temp[1]), "Linear")
+        
+        # Model selection
+        # For linear model
+        if model == "Linear":
+            # Get temp a, b value by shifting randomly from base a, b values
+            temp = (
+                data_mcmc[i - 1][0] + fit_sigma[0] * np.random.randn(1),
+                data_mcmc[i - 1][1] + fit_sigma[1] * np.random.randn(1),
+            )
+        # For quadratic model
+        elif model == "Quadratic":
+            # Get temp a, b, c value by shifting randomly from base a, b, c values
+            temp = (
+                data_mcmc[i - 1][0] + fit_sigma[0] * np.random.randn(1),
+                data_mcmc[i - 1][1] + fit_sigma[1] * np.random.randn(1),
+                data_mcmc[i - 1][2] + fit_sigma[2] * np.random.randn(1),
+            )
+
+        # Get temp log likelihood from temp parameter assembly
+        temp_ll = log_ll(data_x, data_y, temp, model)
 
         # Ratio analysis
         # Generate ratio from ll
@@ -279,46 +294,72 @@ def mcmc_fitter(data_x, data_y, fit_ref):
         # Accept and continue
         if mcmc_ratio > np.random.rand(1) or mcmc_ratio >= 1:
             # Update base state with current temp state values
-            data_a[i], data_b[i], data_ll[i] = temp[0], temp[1], temp_ll
+            data_mcmc[i], data_ll[i] = temp, temp_ll
             # Update counter
             data_accept += 1
         # Reject and revert to previous state
         else:
             # Update base state
-            data_a[i], data_b[i], data_ll[i] = (
-                data_a[i - 1],  # Revert to previous base a
-                data_b[i - 1],  # Revert to previous base b
+            data_mcmc[i], data_ll[i] = (
+                data_mcmc[i - 1],  # Revert to previous base parameter assembly
                 data_ll[i - 1],  # Revert to previous base log likelihood
             )
 
-        # Update current base a, b pair to MCMC chain
-        data_mcmc[i] = data_a[i], data_b[i]
+    # Model selection
+    # For linear model
+    if model == "Linear":
+        # Fit result tuple construction
+        fit_result = (
+            # Overall acceptance rate
+            data_accept / data_step,
+            # Fitted a, b value array average value
+            (np.mean(data_mcmc[:, 0]), np.mean(data_mcmc[:, 1])),
+            # Fitted stdev of a and b array
+            (np.std(data_mcmc[:, 0]), np.std(data_mcmc[:, 1])),
+            # Fitted cov of a and b array
+            np.cov(data_mcmc[:, 0], data_mcmc[:, 1])[0, 1],
+        )
 
-    # Fit result tuple construction
-    fit_result = (
-        # Overall acceptance rate
-        data_accept / data_step,
-        # Fitted a, b value array average value
-        (np.mean(data_a), np.mean(data_b)),
-        # Fitted stdev of a and b array
-        (np.std(data_a), np.std(data_b)),
-        # Fitted cov of a and b array
-        np.cov(data_a, data_b)[0, 1],
-    )
+        # Results printout
+        print()
+        print(f"{'Linear-MCMC result:':<30}")
+        print("=" * 30)
+        print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
+        print(f"{'Acceptance rate:':<20}{fit_result[0]:>10.4g}")
+        print(f"{'Mean intercept:':<20}{fit_result[1][0]:>10.4g}")
+        print(f"{'Mean slope:':<20}{fit_result[1][1]:>10.4g}")
+        print(f"{'Std intercept:':<20}{fit_result[2][0]:>10.4g}")
+        print(f"{'Std slope:':<20}{fit_result[2][1]:>10.4g}")
+        print(f"{'Covariance:':<20}{fit_result[3]:>10.4g}")
+        print("=" * 30)
+        print()
 
-    # Results printout
-    print()
-    print(f"{'Linear-MCMC result:':<30}")
-    print("=" * 30)
-    print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
-    print(f"{'Acceptance rate:':<20}{fit_result[0]:>10.4g}")
-    print(f"{'Mean intercept:':<20}{fit_result[1][0]:>10.4g}")
-    print(f"{'Mean slope:':<20}{fit_result[1][1]:>10.4g}")
-    print(f"{'Std intercept:':<20}{fit_result[2][0]:>10.4g}")
-    print(f"{'Std slope:':<20}{fit_result[2][1]:>10.4g}")
-    print(f"{'Covariance:':<20}{fit_result[3]:>10.4g}")
-    print("=" * 30)
-    print()
+    # For quadratic model
+    elif model == "Quadratic":
+        # Fit result tuple construction
+        fit_result = (
+            # Overall acceptance rate
+            data_accept / data_step,
+            # Fitted a, b value array average value
+            (np.mean(data_mcmc[:, 0]), np.mean(data_mcmc[:, 1]), np.mean(data_mcmc[:, 2])),
+            # Fitted stdev of a and b array
+            (np.std(data_mcmc[:, 0]), np.std(data_mcmc[:, 1]), np.std(data_mcmc[:, 2])),
+        )
+
+        # Results printout
+        print()
+        print(f"{'Quadratic-MCMC result:':<30}")
+        print("=" * 30)
+        print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
+        print(f"{'Acceptance rate:':<20}{fit_result[0]:>10.4g}")
+        print(f"{'Mean a:':<20}{fit_result[1][0]:>10.4g}")
+        print(f"{'Mean b:':<20}{fit_result[1][1]:>10.4g}")
+        print(f"{'Mean c:':<20}{fit_result[1][2]:>10.4g}")
+        print(f"{'Std a:':<20}{fit_result[2][0]:>10.4g}")
+        print(f"{'Std b:':<20}{fit_result[2][1]:>10.4g}")
+        print(f"{'Std c:':<20}{fit_result[2][2]:>10.4g}")
+        print("=" * 30)
+        print()
 
     # Return results for plotter
     return data_mcmc

@@ -73,24 +73,31 @@ def baysian_plotter(arg):
 
 
 # %% Corner plotter for linear MCMC
-def linear_mcmc_plotter(data_mcmc):
+def mcmc_plotter(data_mcmc, model="Linear"):
     """
     Parameters
     ----------
     data_mcmc : array
         MCMC data array.
+    model : string
+        Model selection array, default at "Linear".
 
     Returns
     -------
     None.
     """
-    # Plot param repo
-    label, quantile = (
-        # Set a, b axis label, render LaTeX
-        [r"Value of $a$", r"Value of $b$"],
-        # Set 65% quantiles
-        [0.16, 0.84],
-    )
+    # Model selection
+    # For linear model
+    if model == "Linear":
+        # Set a, b axis label, render LaTeX, and set save path
+        label, file_path = [r"Value of $a$", r"Value of $b$"], "./media/fig_2_mcmc_linear.png"
+    # For quadratic model
+    elif model == "Quadratic":
+        # Set a, b, c axis label, render LaTeX, and set save path
+        label, file_path = [r"Value of $a$", r"Value of $b$", r"Value of $c$"], "./media/fig_3_mcmc_quadratic.png"
+    
+    # Set 65% quantiles
+    quantile = [0.16, 0.84]
 
     # Plot the corner plot with 65% quantiles and labels at size 10
     corner.corner(
@@ -111,5 +118,5 @@ def linear_mcmc_plotter(data_mcmc):
     plt.yticks(fontsize=14)
 
     # Save and close
-    plt.savefig("./media/fig_2_mcmc.png")
+    plt.savefig(file_path)
     plt.close()
