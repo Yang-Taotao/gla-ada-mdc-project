@@ -90,12 +90,19 @@ def mcmc_plotter(data_mcmc, model="Linear"):
     # For linear model
     if model == "Linear":
         # Set a, b axis label, render LaTeX, and set save path
-        label, file_path = [r"Value of $a$", r"Value of $b$"], "./media/fig_2_mcmc_linear.png"
+        label, file_path = [
+            r"Value of $a$",
+            r"Value of $b$",
+        ], "./media/fig_2_mcmc_linear.png"
     # For quadratic model
     elif model == "Quadratic":
         # Set a, b, c axis label, render LaTeX, and set save path
-        label, file_path = [r"Value of $a$", r"Value of $b$", r"Value of $c$"], "./media/fig_3_mcmc_quadratic.png"
-    
+        label, file_path = [
+            r"Value of $a$",
+            r"Value of $b$",
+            r"Value of $c$",
+        ], "./media/fig_3_mcmc_quadratic.png"
+
     # Set 65% quantiles
     quantile = [0.16, 0.84]
 

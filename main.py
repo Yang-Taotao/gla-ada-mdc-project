@@ -16,6 +16,7 @@ from data_reader import file_loader
 # Module linear_ls performs linear least squares fitting
 # Module linear_ml performs linear maximum likelihood fitting
 from data_fitter_linear import linear_ls, linear_ml
+
 # Module linear_mcmc performs MCMC on a linear model
 from data_fitter_mcmc import mcmc_fitter
 
@@ -27,10 +28,10 @@ from data_plotter import baysian_plotter, mcmc_plotter
 # %% Data loader for MDC1 and MDC2
 # Assign file path and associated model as file_path and file_model
 file_path_1, file_path_2, file_model_1, file_model_2 = (
-    "./data/MDC1.txt", # File path for MDC1 data
-    "./data/MDC2.txt", # File path for MDC2 data
-    "Linear",# Linear model string
-    "Quadratic",# Quadraitc model string
+    "./data/MDC1.txt",  # File path for MDC1 data
+    "./data/MDC2.txt",  # File path for MDC2 data
+    "Linear",  # Linear model string
+    "Quadratic",  # Quadraitc model string
 )
 
 # Assign x,y data array from function call

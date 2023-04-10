@@ -10,6 +10,7 @@ Created on Mon Apr 10 2023
 # %% Library import
 # Import numpy with np alias for array manipulation
 import numpy as np
+
 # Import custom log likelihood function module
 from data_formula import log_ll
 

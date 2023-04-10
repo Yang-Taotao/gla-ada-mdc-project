@@ -17,9 +17,9 @@ def log_ll(data_x, data_y, param, model="Linear"):
     Parameters
     ----------
     data_x : array
-        Data x array.
+        Data x value array.
     data_y : array
-        Data y array.
+        Data y value array.
     param : tuple
         Fit model parameters tuple.
     model : string
@@ -46,9 +46,12 @@ def log_ll(data_x, data_y, param, model="Linear"):
 
     # Get stdev of residuals
     fit_sigma = np.std(data_y - fit_model)
-    
-    # Return callable linear log likelihood calculation result
-    return -0.5 * np.sum(
+
+    # Calculate log likelihood
+    result = -0.5 * np.sum(
         ((data_y - fit_model) ** 2) / (2 * fit_sigma**2)
         + np.log(2 * np.pi * fit_sigma**2)
     )
+
+    # Return log likelihood calculation result
+    return result

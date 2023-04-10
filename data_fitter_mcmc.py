@@ -9,6 +9,7 @@ Created on Mon Mar 13 2023
 # %% Library import
 # Import numpy with np alias for array manipulation
 import numpy as np
+
 # Import custom log likelihood function module
 from data_formula import log_ll
 
@@ -38,7 +39,7 @@ def mcmc_fitter(data_x, data_y, model="Linear"):
     # Model selection
     # Select linear model
     if model == "Linear":
-        # Generate empty mcmc sample, 2 columns, all values are zero    
+        # Generate empty mcmc sample, 2 columns, all values are zero
         data_mcmc = np.zeros((data_step, 2))
         # Initialize chains with initial values
         data_mcmc[0], fit_sigma = (
@@ -66,7 +67,7 @@ def mcmc_fitter(data_x, data_y, model="Linear"):
 
     # MCMC loop
     for i in range(1, data_step):
-        
+
         # Model selection
         # For linear model
         if model == "Linear":
@@ -139,10 +140,18 @@ def mcmc_fitter(data_x, data_y, model="Linear"):
         fit_result = (
             # Overall acceptance rate
             data_accept / data_step,
-            # Fitted a, b value array average value
-            [np.mean(data_mcmc[:, 0]), np.mean(data_mcmc[:, 1]), np.mean(data_mcmc[:, 2])],
-            # Fitted stdev of a and b array
-            [np.std(data_mcmc[:, 0]), np.std(data_mcmc[:, 1]), np.std(data_mcmc[:, 2])],
+            # Fitted a, b, and c value array average value
+            [
+                np.mean(data_mcmc[:, 0]),
+                np.mean(data_mcmc[:, 1]),
+                np.mean(data_mcmc[:, 2]),
+            ],
+            # Fitted stdev of a, b, and c array
+            [
+                np.std(data_mcmc[:, 0]),
+                np.std(data_mcmc[:, 1]),
+                np.std(data_mcmc[:, 2]),
+            ],
         )
 
         # Results printout
