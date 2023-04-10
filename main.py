@@ -20,9 +20,12 @@ from data_fitter_linear import linear_ls, linear_ml
 # Module linear_mcmc performs MCMC on a linear model
 from data_fitter_mcmc import mcmc_fitter
 
+# Module bayes_factor calculates the bayes factor
+from data_fitter_bayes import bayes_factor
+
 # Custom data plotter module
 # Module baysian_plotter generates the plot for 1.2
-# Module linear_mcmc_plotter generates the plot for 1.3, 2.1
+# Module linear_mcmc_plotter generates the plot for 1.3 and 2.1
 from data_plotter import baysian_plotter, mcmc_plotter
 
 # %% Data loader for MDC1 and MDC2
@@ -50,13 +53,20 @@ res_linear_ml = linear_ml(data_x1, data_y1, res_linear_ls[0])
 baysian_plotter(res_linear_ml)
 
 # %% 1.3 - MCMC linear fit with corner plot
+# Initial guesses made with all fit param = 1.0
+# After the initial fit, new param are updated for better plotting
 # Deposit mcmc data with linear model
 res_line_mcmc = mcmc_fitter(data_x1, data_y1, file_model_1)
 # Generate mcmc corner plot
 mcmc_plotter(res_line_mcmc, file_model_1)
 
-# %% 1.3 - MCMC linear fit with corner plot
+# %% 2.1 - MCMC quadratic fit with corner plot
+# Initial guesses made with all fit param = 1.0
+# After the initial fit, new param are updated for better plotting
 # Deposit mcmc data with quadratic model
 res_quad_mcmc = mcmc_fitter(data_x2, data_y2, file_model_2)
 # Generate mcmc corner plot
 mcmc_plotter(res_quad_mcmc, file_model_2)
+
+# %% 2.2 - Bayes factor
+bayes_factor(data_x1, data_y1, data_x2, data_y2)
