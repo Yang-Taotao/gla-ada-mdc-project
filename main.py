@@ -16,7 +16,7 @@ from data_reader import file_loader
 # Module linear_ls performs linear least squares fitting
 # Module linear_ml performs linear maximum likelihood fitting
 # Module linear_mcmc performs MCMC on a linear model
-from data_fitter import linear_ls, linear_ml, linear_mcmc
+from data_fitter import linear_ls, linear_ml, mcmc_fitter
 
 # Custom data plotter module
 # Module baysian_plotter generates the plot for 1.2
@@ -43,6 +43,6 @@ baysian_plotter(res_linear_ml)
 
 # %% 1.3 - MCMC linear fit with corner plot
 # Deposit mcmc data with linear ls fit result as intial guesses
-res_linear_mcmc = linear_mcmc(data_x1, data_y1, res_linear_ls)
+res_linear_mcmc = mcmc_fitter(data_x1, data_y1, res_linear_ls)
 # Generate mcmc corner plot
 linear_mcmc_plotter(res_linear_mcmc)

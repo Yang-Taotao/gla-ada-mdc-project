@@ -10,6 +10,50 @@ Created on Mon Mar 13 2023
 # Import numpy with np alias for array manipulation
 import numpy as np
 
+# %% Log likelihood function repo
+# Log likelihood function generator
+def log_ll(data_x, data_y, param, model="Linear"):
+    """
+    Parameters
+    ----------
+    data_x : array
+        Data x array.
+    data_y : array
+        Data y array.
+    param : tuple
+        Fit model parameters tuple.
+    model : string
+        Model selector string, defaul at "Linear".
+
+    Returns
+    -------
+    log likelihood function
+        Callable log likelihood calculation.
+    """
+    # Model selection
+    # Select linear model
+    if model == "Linear":
+        # Local varible repo
+        param_a, param_b = param
+        # Generate linear model
+        fit_model = param_a + param_b * data_x
+    # Select quadratic model
+    elif model == "Quadratic":
+        # Local varible repo
+        param_a, param_b, param_c = param
+        # Generate quadratic model
+        fit_model = param_a + param_b * data_x + param_c * data_x**2
+
+    # Get stdev of residuals
+    fit_sigma = np.std(data_y - fit_model)
+    
+    # Return callable linear log likelihood calculation result
+    return -0.5 * np.sum(
+        ((data_y - fit_model) ** 2) / (2 * fit_sigma**2)
+        + np.log(2 * np.pi * fit_sigma**2)
+    )
+
+
 # %% Linear least squares fitter
 # Linear ordinary least squares fitter
 def linear_ls(data_x, data_y):
@@ -101,33 +145,6 @@ def linear_ls(data_x, data_y):
     return result
 
 
-# %% Log likelihood function repo
-# Linear log likelihood function generator
-def linear_ll(data_x, data_y, param_a, param_b):
-    """
-    Parameters
-    ----------
-    param_a : float
-        Linear fit model parameter, intercept.
-    param_b : float
-        Linear fit model parameter, slope.
-
-    Returns
-    -------
-    log likelihood function
-        Callable log likelihood calculation.
-    """
-    # Generate linear model y = a+b*x
-    fit_model = param_a + param_b * data_x
-    # Get stdev of residuals
-    fit_sigma = np.std(data_y - fit_model)
-    # Return callable linear log likelihood calculation result
-    return -0.5 * np.sum(
-        ((data_y - fit_model) ** 2) / (2 * fit_sigma**2)
-        + np.log(2 * np.pi * fit_sigma**2)
-    )
-
-
 # %% Maximum likelihood fitter
 # Linear maximum likelihood fitter
 def linear_ml(data_x, data_y, fit_param):
@@ -157,7 +174,7 @@ def linear_ml(data_x, data_y, fit_param):
         # Loop with list comprehension
         [
             # Cache log likelihood value of a, b pair
-            linear_ll(data_x, data_y, data_a[i], data_b[j])
+            log_ll(data_x, data_y, (data_a[i], data_b[j]), "Linear")
             # Loop through entries of a
             for i in range(len(data_a))
             # Loop through entries of b
@@ -198,7 +215,7 @@ def linear_ml(data_x, data_y, fit_param):
 
 # %% Metropolis - MCMC
 # Linear MCMC function
-def linear_mcmc(data_x, data_y, fit_ref):
+def mcmc_fitter(data_x, data_y, fit_ref):
     """
     Parameters
     ----------
@@ -241,7 +258,7 @@ def linear_mcmc(data_x, data_y, fit_ref):
     # Initialize log likelihood and deposit results and a, b pairs
     data_ll[0], data_mcmc[0] = (
         # Calculate initial log likelihood from initial a, b entries
-        linear_ll(data_x, data_y, data_a[0], data_b[0]),
+        log_ll(data_x, data_y, (data_a[0], data_b[0]), "Linear"),
         # Deposit initial a, b pair to mcmc chain
         (data_a[0], data_b[0]),
     )
@@ -254,7 +271,7 @@ def linear_mcmc(data_x, data_y, fit_ref):
             data_b[i - 1] + fit_sigma[1] * np.random.randn(1),
         )
         # Get temp log likelihood from temp a, b
-        temp_ll = linear_ll(data_x, data_y, temp[0], temp[1])
+        temp_ll = log_ll(data_x, data_y, (temp[0], temp[1]), "Linear")
 
         # Ratio analysis
         # Generate ratio from ll
