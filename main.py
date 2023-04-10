@@ -12,20 +12,27 @@ Created on Mon Mar 13 2023
 # Module file_loader loads the txt file into numpy arrays
 from data_reader import file_loader
 
-# Custom data fitter module
+# Custom data fitter module import
 # Module linear_ls performs linear least squares fitting
 # Module linear_ml performs linear maximum likelihood fitting
+from data_fitter_linear import linear_ls, linear_ml
 # Module linear_mcmc performs MCMC on a linear model
-from data_fitter import linear_ls, linear_ml, mcmc_fitter
+from data_fitter_mcmc import mcmc_fitter
 
 # Custom data plotter module
 # Module baysian_plotter generates the plot for 1.2
-# Module linear_mcmc_plotter generates the plot for 1.3
+# Module linear_mcmc_plotter generates the plot for 1.3, 2.1
 from data_plotter import baysian_plotter, mcmc_plotter
 
 # %% Data loader for MDC1 and MDC2
-# Assign file path as file_path
-file_path_1, file_path_2 = "./data/MDC1.txt", "./data/MDC2.txt"
+# Assign file path and associated model as file_path and file_model
+file_path_1, file_path_2, file_model_1, file_model_2 = (
+    "./data/MDC1.txt", # File path for MDC1 data
+    "./data/MDC2.txt", # File path for MDC2 data
+    "Linear",# Linear model string
+    "Quadratic",# Quadraitc model string
+)
+
 # Assign x,y data array from function call
 (data_x1, data_y1), (data_x2, data_y2) = (
     file_loader(file_path_1),  # MDC1 dataset
@@ -42,13 +49,13 @@ res_linear_ml = linear_ml(data_x1, data_y1, res_linear_ls[0])
 baysian_plotter(res_linear_ml)
 
 # %% 1.3 - MCMC linear fit with corner plot
-# Deposit mcmc data with linear ls fit result as intial guesses
-res_linear_mcmc = mcmc_fitter(data_x1, data_y1, "Linear")
+# Deposit mcmc data with linear model
+res_line_mcmc = mcmc_fitter(data_x1, data_y1, file_model_1)
 # Generate mcmc corner plot
-mcmc_plotter(res_linear_mcmc, "Linear")
+mcmc_plotter(res_line_mcmc, file_model_1)
 
 # %% 1.3 - MCMC linear fit with corner plot
-# Deposit mcmc data with linear ls fit result as intial guesses
-res_quadratic_mcmc = mcmc_fitter(data_x2, data_y2, "Quadratic")
+# Deposit mcmc data with quadratic model
+res_quad_mcmc = mcmc_fitter(data_x2, data_y2, file_model_2)
 # Generate mcmc corner plot
-mcmc_plotter(res_quadratic_mcmc, "Quadratic")
+# mcmc_plotter(res_quad_mcmc, file_model_2)
