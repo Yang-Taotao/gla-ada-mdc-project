@@ -88,7 +88,7 @@ def linear_ls(data_x, data_y):
 
     # Print results
     print()
-    print(f"{'Linear-ls fit result:':<30}")
+    print(f"{'#1.1 - Linear-ls fit result:':<30}")
     print("=" * 30)
     print(f"{'Fitted intercept:':<20}{fit_param[0]:>10.4g}")
     print(f"{'Fitted slope:':<20}{fit_param[1]:>10.4g}")
@@ -161,7 +161,7 @@ def linear_ml(data_x, data_y, fit_param):
 
     # Results printout
     print()
-    print(f"{'Linear-ml fit result:':<30}")
+    print(f"{'#1.2 - Linear-ml fit result:':<30}")
     print("=" * 30)
     print(f"{'Fitted intercept:':<20}{fit_param[0]:>10.4g}")
     print(f"{'Fitted slope:':<20}{fit_param[1]:>10.4g}")

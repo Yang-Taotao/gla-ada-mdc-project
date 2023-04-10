@@ -96,7 +96,7 @@ def bayes_factor(data_x1, data_y1, data_x2, data_y2):
 
     # Result printout
     print()
-    print(f"{'Bayes factor result:':<30}")
+    print(f"{'#2.2 - Bayes factor result:':<30}")
     print("=" * 30)
     print(f"{'Line marginal ll:':<20}{margi_ll[0]:>10.4g}")
     print(f"{'Quad marginal ll:':<20}{margi_ll[1]:>10.4g}")

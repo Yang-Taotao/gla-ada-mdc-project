@@ -122,7 +122,7 @@ def mcmc_fitter(data_x, data_y, model="Linear"):
 
         # Results printout
         print()
-        print(f"{'Linear-MCMC result:':<30}")
+        print(f"{'#1.3 - Linear-MCMC result:':<30}")
         print("=" * 30)
         print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
         print(f"{'Acceptance rate:':<20}{fit_result[0]:>10.4g}")
@@ -156,7 +156,7 @@ def mcmc_fitter(data_x, data_y, model="Linear"):
 
         # Results printout
         print()
-        print(f"{'Quadratic-MCMC result:':<30}")
+        print(f"{'#2.1 - Quadratic-MCMC result:':<30}")
         print("=" * 30)
         print(f"{'MCMC attempts:':<20}{data_step:>10.4g}")
         print(f"{'Acceptance rate:':<20}{fit_result[0]:>10.4g}")

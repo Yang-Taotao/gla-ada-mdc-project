@@ -68,5 +68,5 @@ res_quad_mcmc = mcmc_fitter(data_x2, data_y2, file_model_2)
 # Generate mcmc corner plot
 mcmc_plotter(res_quad_mcmc, file_model_2)
 
-# %% 2.2 - Bayes factor
+# %% 2.2 - Bayes factor calculation and result printout
 bayes_factor(data_x1, data_y1, data_x2, data_y2)
