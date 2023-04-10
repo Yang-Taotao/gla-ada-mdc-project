@@ -103,9 +103,9 @@ def bayes_factor(data_x1, data_y1, data_x2, data_y2):
 
     # Bayes factor interpreter
     if bayes > 1:
-        res_bayes = "Quadratic"
-    elif bayes < 1:
         res_bayes = "Linear"
+    elif bayes < 1:
+        res_bayes = "Quadratic"
     else:
         res_bayes = "N/A"
 
