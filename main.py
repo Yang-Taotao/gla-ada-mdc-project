@@ -59,4 +59,4 @@ mcmc_plotter(res_line_mcmc, file_model_1)
 # Deposit mcmc data with quadratic model
 res_quad_mcmc = mcmc_fitter(data_x2, data_y2, file_model_2)
 # Generate mcmc corner plot
-# mcmc_plotter(res_quad_mcmc, file_model_2)
+mcmc_plotter(res_quad_mcmc, file_model_2)
