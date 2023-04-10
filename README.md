@@ -1,7 +1,7 @@
 ## Radio data analysis
 This is a course project for *PHYS-5001* at *University of Glasgow*.
 - Drafted: Apr 06, 2023
-- Editted: Apr 09, 2023
+- Editted: Apr 10, 2023
 
 ## Data set
 We employ the data obtained from:
@@ -29,8 +29,12 @@ Main file:
 Data reader modules:
 - data_reader.py
 
+Data formula modules:
+- data_formula.py
+
 Data fitter modules:
-- data_fitter.py
+- data_fitter_linear.py
+- data_fitter_mcmc.py
 
 ## Supplementary files
 Readme:
