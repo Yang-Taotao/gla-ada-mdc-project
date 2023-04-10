@@ -1,7 +1,15 @@
 """
-This is the master script for MDC of ADA course.
-Tuple unpacking and indexing is heavily used for this project.
-Results are generated with customized function calls.
+## Description: 
+- This is the master script for MDC of ADA course.
+- Tuple unpacking and indexing is heavily used for this project.
+- Results are generated with customized function calls.
+- Printouts are formatted with f-strings methods.
+
+## Method:
+- This script first import the necessary modules.
+- Then defines the file path and model strings.
+- It then assigns the data array from txt files.
+- Afterwards, the results required for each section is called.
 
 Created on Mon Mar 13 2023
 

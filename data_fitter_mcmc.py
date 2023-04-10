@@ -1,6 +1,7 @@
 """
 This is the data fitter module file for MDC data reading.
 Results print out formatted with f-string methods.
+The file is focused on MCMC algoeithm.
 
 Created on Mon Mar 13 2023
 

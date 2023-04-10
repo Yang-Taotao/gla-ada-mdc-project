@@ -19,6 +19,23 @@ from scipy.special import logsumexp
 
 # %% Gridded log likelihood grid function and Bayes factor calculation
 def bayes_factor(data_x1, data_y1, data_x2, data_y2):
+    """
+    Parameters
+    ----------
+    data_x1 : array
+        Data array of x value from MDC1.
+    data_y1 : array
+        Data array of y value from MDC1.
+    data_x2 : array
+        Data array of x value from MDC2.
+    data_y2 : array
+        Data array of y value from MDC2.
+
+    Returns
+    -------
+    result : array
+        Results return array.
+    """
     # Manual generation of local a, b, c guesses from mcmc fitter
     fit_param = (
         # Value array of a guesses
@@ -74,13 +91,11 @@ def bayes_factor(data_x1, data_y1, data_x2, data_y2):
     # Calculate the marginal log likelihood
     margi_ll = (
         # Generate marginal log likelihood sum for linear model grid
-        logsumexp(grid_ll_line)
         # Normalize with number of linear log likelihood grid entries
-        / (len(fit_param[0]) * len(fit_param[1])),
+        logsumexp(grid_ll_line) / (grid_ll_line.size),
         # Generate marginal log likelihood sum for quadratic model grid
-        logsumexp(grid_ll_quad)
         # Normalize with number of quadratic log likelihood grid entries
-        / (len(fit_param[0]) * len(fit_param[1]) * len(fit_param[2])),
+        logsumexp(grid_ll_quad) / (grid_ll_quad.size),
     )
 
     # Calculate the final Bayes factor
